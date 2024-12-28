@@ -1,20 +1,17 @@
-def comenzarDibujo(event):
-    global ultima_x, ultima_y
-    
-    ultima_x, ultima_y = event.x, event.y
+import numpy as np
+from PIL import ImageGrab
+from tensorflow.keras.models import load_model
 
-def dibujar(event):
-    global ultima_x, ultima_y
-
-    canvas.create_line((ultima_x, ultima_y, event.x, event.y), fill='black',width=2)
-
-    ultima_x, ultima_y = event.x, event.y
-
-def borrar_todo():
-    canvas.delete('all')
+modelo = load_model("modelo_mnist.h5")
 
 
-def obtener_imagen_canvas():
+
+def obtener_imagen_canvas(canvas):
+
+    """
+    Captura el contenido del lienzo como una imagen procesable.
+    """
+
     x = canvas.winfo_rootx()
     y = canvas.winfo_rooty()
     w = x + canvas.winfo_width()
@@ -28,18 +25,25 @@ def obtener_imagen_canvas():
 
 
 def preparar_imagen(imagen):
+    """
+    Convierte la imagen capturada en un array NumPy normalizado.
+    """
+
     array = np.array(imagen)
     array = array / 255.0
     array = np.expand_dims(array,axis=0)
     return array
 
-def predecir_numero():
-    imagen = obtener_imagen_canvas()
-    array = preparar_imagen()
+def predecir_numero(canvas):
+    """
+    Captura la imagen del canvas, la procesa y predice el número.
+    """
+
+    imagen = obtener_imagen_canvas(canvas)
+    array = preparar_imagen(imagen)
     prediccion = modelo.predict(array)
     numero = np.argmax(prediccion)
-    etiqueta_resultado.cofing(text=f"Número predicho: {numero}")
-
+    return numero
 
 
 
